@@ -193,10 +193,15 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
         elapsed_time = 0;
 
         waiting_to_feed = false;
+
+        // Device must not enter sleep mode while keeping track of time
+        // This is important, do not change
         fed3.EnableSleep = true;
       }
     }
 
+
+    // Sleep mode is activated once the device is done feeding
     else {
       if (feed_on_left && left_poke) {
         interval = get_interval(30, 0.75);
