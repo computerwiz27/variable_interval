@@ -192,9 +192,7 @@ String select(String selection) {
     } else if (selection == "confirm") {
       new_selection = "done";
     }
-  }
-
-  
+  }  
 
   return new_selection;
 }
