@@ -45,6 +45,21 @@ void setup()
   fed3.FED3Menu = true;
   fed3.begin();
 
+  if (fed3.FEDmode == FIXED_RATIO_LEFT_1
+    || fed3.FEDmode == FIXED_RATIO_RIGHT_1) {
+    fed3.FR = 1;
+  }
+
+  if (fed3.FEDmode == FIXED_RATIO_LEFT_3
+    || fed3.FEDmode == FIXED_RATIO_RIGHT_3) {
+    fed3.FR = 3;
+  }
+
+  if (fed3.FEDmode == FIXED_RATIO_LEFT_5
+    || fed3.FEDmode == FIXED_RATIO_RIGHT_5) {
+    fed3.FR = 5;
+  }
+
   if (fed3.FEDmode == VARIABLE_INTERVAL) {
     run_VI_menu();
   }
@@ -257,22 +272,6 @@ if (fed3.FEDmode == FIXED_RATIO_LEFT_1
   || fed3.FEDmode == FIXED_RATIO_LEFT_5)
   {
 
-    if (fed3.FEDmode == FIXED_RATIO_LEFT_1)
-    {
-      fed3.sessiontype = "FR1_L";
-      fed3.FR = 1;
-    }
-    if (fed3.FEDmode == FIXED_RATIO_LEFT_3)
-    {
-      fed3.sessiontype = "FR3_L";
-      fed3.FR = 3;
-    }
-    if (fed3.FEDmode == FIXED_RATIO_LEFT_5)
-    {
-      fed3.sessiontype = "FR5_L";
-      fed3.FR = 5;
-    }
-
     if (left_poke)
     {
       if (fed3.LeftCount % fed3.FR == 0)
@@ -288,22 +287,6 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
   || fed3.FEDmode == FIXED_RATIO_RIGHT_3
   || fed3.FEDmode == FIXED_RATIO_RIGHT_5)
   {
-
-    if (fed3.FEDmode == FIXED_RATIO_RIGHT_1)
-    {
-      fed3.sessiontype = "FR1_R";
-      fed3.FR = 1;
-    }
-    if (fed3.FEDmode == FIXED_RATIO_RIGHT_3)
-    {
-      fed3.sessiontype = "FR3_R";
-      fed3.FR = 3;
-    }
-    if (fed3.FEDmode == FIXED_RATIO_RIGHT_5)
-    {
-      fed3.sessiontype = "FR5_R";
-      fed3.FR = 5;
-    }
 
     if (right_poke)
     {
