@@ -9,7 +9,7 @@
 #define FIXED_RATIO_RIGHT_5 6
 #define VARIABLE_INTERVAL 7
 
-String sketch = "VI";
+String sketch = "Menu";
 FED3 fed3(sketch);
 
 int feeds;
@@ -81,6 +81,9 @@ void display_VI_menu() {
     display.print("right");
   }
 
+  display.setCursor(10, 130);
+  display.print("Done");
+
   display.refresh();
 }
 
@@ -89,20 +92,23 @@ void draw_selection(String selection) {
 
   display.setTextColor(WHITE);
   if (selection == "avg") {
-    display.fillRect(98, 3, 70, 22, BLACK);
-    display.setCursor(100, 20);
-    display.print(avg); display.print("s");
+    display.fillRect(98, 3, 65, 22, BLACK);
+    display.setCursor(100, 20); display.print("<");
+    display.setCursor(115, 20); display.print(avg); display.print("s");
+    display.setCursor(150, 20);display.print(">");
   } 
   
   else if (selection == "p degree") {
-    display.fillRect(98, 23, 70, 22, BLACK);
-    display.setCursor(100, 40);
-    display.print(predic_degree);
+    display.fillRect(98, 23, 65, 22, BLACK);
+    display.setCursor(100, 40); display.print("<");
+    display.setCursor(115, 40); display.print(predic_degree);
+    display.setCursor(150, 40); display.print(">");
   } 
   
   else if (selection == "sensor") {
-    display.fillRect(98, 43, 70, 22, BLACK);
-    display.setCursor(100, 60);
+    display.fillRect(98, 43, 65, 22, BLACK);
+    display.setCursor(100, 60); display.print("<");
+    display.setCursor(115, 60);
     if (feed_on_left && feed_on_right) {
       display.print("both");
     } else if (feed_on_left) {
@@ -110,6 +116,12 @@ void draw_selection(String selection) {
     } else {
       display.print("right");
     }
+    display.setCursor(150, 60); display.print(">");
+  }
+
+  else if (selection == "confirm") {
+    display.fillRect(98, 113, 65, 22, BLACK);
+    display.setCursor(150, 130); display.print(">");
   }
 
   display.refresh();
@@ -124,11 +136,10 @@ String select(String selection) {
     } else if (selection == "p degree") {
       new_selection = "sensor";
     } else if (selection == "sensor") {
-      new_selection = "done";
+      new_selection = "confirm";
+    } else if (selection == "confirm") {
+      new_selection = "avg";
     }
-    fed3.display.clearDisplay();
-    display_VI_menu();
-    fed3.display.refresh();
   }
 
   else if(digitalRead(LEFT_POKE) == LOW) {
@@ -178,6 +189,8 @@ String select(String selection) {
         feed_on_left = true;
         feed_on_right = true;
       }
+    } else if (selection == "confirm") {
+      new_selection = "done";
     }
   }
 
@@ -191,14 +204,24 @@ void run_VI_menu() {
 
   String selection = "avg";
 
+  String last_selection = selection;
   while(selection != "done") {
     draw_selection(selection);
     selection = select(selection);
+    if (selection != last_selection) {
+      fed3.display.clearDisplay();
+      display_VI_menu();
+      fed3.display.refresh();
+      last_selection = selection;
+    }
     delay(300);
   }
 
   fed3.display.clearDisplay();
   fed3.display.refresh();
+
+  fed3.Left = false;
+  fed3.Right = false;
 }
 
 void loop() {
@@ -293,22 +316,23 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
     }
   }
 
-  //////// VARIABLE INTERVAL MODES ////////
+  //////// VARIABLE INTERVAL MODE ////////
 
   if (fed3.FEDmode == VARIABLE_INTERVAL)
   {
     fed3.sessiontype = "VAR INT";
 
-    if (feed_on_left && feeds == 0 && left_poke) {
-      feeds++;
-      fed3.Feed();
-      return;
-    }
-
-    if (feed_on_right && feeds == 0 && right_poke) {
-      feeds++;
-      fed3.Feed();
-      return;
+    if (feeds == 0) {
+      if (feed_on_left && left_poke) {
+        feeds++;
+        fed3.Feed();
+        return;
+      }
+      if (feed_on_right && right_poke) {
+        feeds++;
+        fed3.Feed();
+        return;
+      }
     }
 
     if (waiting_to_feed) {
