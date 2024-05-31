@@ -17,9 +17,6 @@ int feeds;
 int avg;
 float predic_degree;
 
-bool feed_on_left;
-bool feed_on_right;
-
 bool waiting_to_feed;
 
 long interval;
@@ -34,8 +31,6 @@ void setup()
 
   avg = 30;
   predic_degree = 0.75;
-  feed_on_left = true;
-  feed_on_right = false;
 
   waiting_to_feed = false;
   feeds = 0;
@@ -64,6 +59,10 @@ void setup()
     run_VI_menu();
   }
 
+  if (fed3.FEDmode == VARIABLE_INTERVAL) {
+    fed3.disableSleep();
+  }
+
   fed3.run();
   srand((unsigned int)fed3.unixtime);
 }
@@ -84,17 +83,6 @@ void display_VI_menu() {
   display.print("p degree: ");
   display.setCursor(100, 40);
   display.print(predic_degree);
-  
-  display.setCursor(10, 60);
-  display.print("feed on: ");
-  display.setCursor(100, 60);
-  if (feed_on_left && feed_on_right) {
-    display.print("both");
-  } else if (feed_on_left) {
-    display.print("left");
-  } else {
-    display.print("right");
-  }
 
   display.setCursor(10, 130);
   display.print("Done");
@@ -119,20 +107,6 @@ void draw_selection(String selection) {
     display.setCursor(115, 40); display.print(predic_degree);
     display.setCursor(150, 40); display.print(">");
   } 
-  
-  else if (selection == "sensor") {
-    display.fillRect(98, 43, 65, 22, BLACK);
-    display.setCursor(100, 60); display.print("<");
-    display.setCursor(115, 60);
-    if (feed_on_left && feed_on_right) {
-      display.print("both");
-    } else if (feed_on_left) {
-      display.print("left");
-    } else {
-      display.print("right");
-    }
-    display.setCursor(150, 60); display.print(">");
-  }
 
   else if (selection == "confirm") {
     display.fillRect(98, 113, 65, 22, BLACK);
@@ -149,8 +123,6 @@ String select(String selection) {
     if (selection == "avg") {
       new_selection = "p degree";
     } else if (selection == "p degree") {
-      new_selection = "sensor";
-    } else if (selection == "sensor") {
       new_selection = "confirm";
     } else if (selection == "confirm") {
       new_selection = "avg";
@@ -168,18 +140,7 @@ String select(String selection) {
       if (predic_degree < 0) {
         predic_degree = 0;
       }
-    } else if (selection == "sensor") {
-      if (feed_on_left && feed_on_right) {
-        feed_on_left = false;
-        feed_on_right = true;
-      } else if (feed_on_left) {
-        feed_on_left = true;
-        feed_on_right = true;
-      } else {
-        feed_on_left = true;
-        feed_on_right = false;
-      }
-    }
+    } 
   }
 
   else if(digitalRead(RIGHT_POKE) == LOW) {
@@ -192,17 +153,6 @@ String select(String selection) {
       predic_degree += 0.25;
       if (predic_degree > 1) {
         predic_degree = 1;
-      }
-    } else if (selection == "sensor") {
-      if (feed_on_left && feed_on_right) {
-        feed_on_left = true;
-        feed_on_right = false;
-      } else if (feed_on_left) {
-        feed_on_left = false;
-        feed_on_right = true;
-      } else {
-        feed_on_left = true;
-        feed_on_right = true;
       }
     } else if (selection == "confirm") {
       new_selection = "done";
@@ -304,16 +254,11 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
     fed3.sessiontype = "VAR INT";
 
     if (feeds == 0) {
-      if (feed_on_left && left_poke) {
-        feeds++;
+      if (left_poke || right_poke) {
         fed3.Feed();
-        return;
-      }
-      if (feed_on_right && right_poke) {
         feeds++;
-        fed3.Feed();
-        return;
       }
+      else return;
     }
 
     if (waiting_to_feed) {
@@ -341,28 +286,16 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
         elapsed_time = 0;
 
         waiting_to_feed = false;
-
-        // Device must not enter sleep mode while keeping track of time
-        // This is important, do not change
-        fed3.EnableSleep = true;
       }
     }
 
 
     // Sleep mode is activated once the device is done feeding
     else {
-      if (feed_on_left && left_poke) {
+      if (fed3.PelletAvailable == false) {
         interval = get_interval();
-        
-        waiting_to_feed = true;
-        fed3.EnableSleep = false;
-      }
 
-      if (feed_on_right && right_poke) {
-        interval = get_interval();
-        
         waiting_to_feed = true;
-        fed3.EnableSleep = false;
       }
     }
   }
