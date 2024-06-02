@@ -257,6 +257,7 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
       if (left_poke || right_poke) {
         fed3.Feed();
         feeds++;
+        logFeed();
       }
       else return;
     }
@@ -286,6 +287,7 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
         elapsed_time = 0;
 
         waiting_to_feed = false;
+        logFeed();
       }
     }
 
@@ -294,8 +296,8 @@ if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
     else {
       if (fed3.PelletAvailable == false) {
         interval = get_interval();
-
         waiting_to_feed = true;
+        logVI();
       }
     }
   }
@@ -311,4 +313,76 @@ int get_interval() {
   int r = rand();
 
   return (r % mod + lower) * 1000;
+}
+
+void VIlog(String event) {
+  // preamble from FED3.cpp
+  if (fed3.EnableSleep==true) {
+    digitalWrite(MOTOR_ENABLE, LOW);
+  }
+  fed3.SD.begin(cardSelect, SD_SCK_MHZ(4));
+
+  // fix filename
+  char *filename = fed3.filename;
+  filename[16] = '.';
+  filename[17] = 'C';
+  filename[18] = 'S';
+  filename[19] = 'V';
+  File logfile = fed3.SD.open(filename, FILE_WRITE);
+
+  //if FED3 cannot open file put SD card icon on screen 
+  if ( ! logfile ) {
+    Adafruit_SharpMem display = fed3.display;
+    display.fillRect (68, 1, 15, 22, WHITE);
+    //draw SD card icon
+    display.drawRect (70, 2, 11, 14, BLACK);
+    display.drawRect (69, 6, 2, 10, BLACK);
+    display.fillRect (70, 7, 4, 8, WHITE);
+    display.drawRect (72, 4, 1, 3, BLACK);
+    display.drawRect (74, 4, 1, 3, BLACK);
+    display.drawRect (76, 4, 1, 3, BLACK);
+    display.drawRect (78, 4, 1, 3, BLACK);
+    //exclamation point
+    display.fillRect (72, 6, 6, 16, WHITE);
+    display.setCursor(74, 16);
+    display.setTextSize(2);
+    display.setFont(&Org_01);
+    display.print("!");
+    display.setFont(&FreeSans9pt7b);
+    display.setTextSize(1);
+  }
+
+  // log time
+  logfile.print(fed3.currentHour);
+  logfile.print(":");
+  if (fed3.currentMinute < 10)
+    logfile.print('0');      // Trick to add leading zero for formatting
+  logfile.print(fed3.currentMinute);
+  logfile.print(":");
+  if (fed3.currentSecond < 10)
+    logfile.print('0');      // Trick to add leading zero for formatting
+  logfile.print(fed3.currentSecond);
+  logfile.print(", ");
+
+  if (event == "VI") {
+    logfile.print("variable interval set to ");
+    logfile.print(interval/1000);
+    logfile.print(" s");
+  }
+
+  if (event == "feed") {
+    logfile.print("dispensed pellet");
+  }
+
+  logfile.println();
+  logfile.flush();
+  logfile.close();
+}
+
+void logVI() {
+  VIlog("VI");
+}
+
+void logFeed() {
+  VIlog("feed");
 }
