@@ -4,10 +4,12 @@
 #define FIXED_RATIO_LEFT_1  1
 #define FIXED_RATIO_LEFT_3  2
 #define FIXED_RATIO_LEFT_5  3
-#define FIXED_RATIO_RIGHT_1 4
-#define FIXED_RATIO_RIGHT_3 5
-#define FIXED_RATIO_RIGHT_5 6
-#define VARIABLE_INTERVAL 7
+#define FIXED_RATIO_LEFT_10 4
+#define FIXED_RATIO_RIGHT_1 5
+#define FIXED_RATIO_RIGHT_3 6
+#define FIXED_RATIO_RIGHT_5 7
+#define FIXED_RATIO_RIGHT_10 8
+#define VARIABLE_INTERVAL 9
 
 String sketch = "Menu";
 FED3 fed3(sketch);
@@ -53,6 +55,12 @@ void setup()
   if (fed3.FEDmode == FIXED_RATIO_LEFT_5
     || fed3.FEDmode == FIXED_RATIO_RIGHT_5) {
     fed3.FR = 5;
+  }
+
+
+  if (fed3.FEDmode == FIXED_RATIO_LEFT_10
+    || fed3.FEDmode == FIXED_RATIO_RIGHT_10) {
+    fed3.FR = 10;
   }
 
   if (fed3.FEDmode == VARIABLE_INTERVAL) {
@@ -219,7 +227,8 @@ void loop() {
 
 if (fed3.FEDmode == FIXED_RATIO_LEFT_1
   || fed3.FEDmode == FIXED_RATIO_LEFT_3
-  || fed3.FEDmode == FIXED_RATIO_LEFT_5)
+  || fed3.FEDmode == FIXED_RATIO_LEFT_5
+  || fed3.FEDmode == FIXED_RATIO_LEFT_10)
   {
 
     if (left_poke)
@@ -235,7 +244,8 @@ if (fed3.FEDmode == FIXED_RATIO_LEFT_1
 
 if (fed3.FEDmode == FIXED_RATIO_RIGHT_1
   || fed3.FEDmode == FIXED_RATIO_RIGHT_3
-  || fed3.FEDmode == FIXED_RATIO_RIGHT_5)
+  || fed3.FEDmode == FIXED_RATIO_RIGHT_5
+  || fed3.FEDmode == FIXED_RATIO_RIGHT_10)
   {
 
     if (right_poke)
