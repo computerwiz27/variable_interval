@@ -1,15 +1,15 @@
 #include <FED3.h>
 
-#define FEED              0
-#define FIXED_RATIO_LEFT_1  1
-#define FIXED_RATIO_LEFT_3  2
-#define FIXED_RATIO_LEFT_5  3
-#define FIXED_RATIO_LEFT_10 4
-#define FIXED_RATIO_RIGHT_1 5
-#define FIXED_RATIO_RIGHT_3 6
-#define FIXED_RATIO_RIGHT_5 7
-#define FIXED_RATIO_RIGHT_10 8
-#define VARIABLE_INTERVAL 9
+#define FEED                  0
+#define FIXED_RATIO_LEFT_1    1
+#define FIXED_RATIO_LEFT_3    2
+#define FIXED_RATIO_LEFT_5    3
+#define FIXED_RATIO_LEFT_10   4
+#define FIXED_RATIO_RIGHT_1   5
+#define FIXED_RATIO_RIGHT_3   6
+#define FIXED_RATIO_RIGHT_5   7
+#define FIXED_RATIO_RIGHT_10  8
+#define VARIABLE_INTERVAL     9
 
 String sketch = "Menu";
 FED3 fed3(sketch);
@@ -46,29 +46,34 @@ void setup()
     || fed3.FEDmode == FIXED_RATIO_RIGHT_1) {
     fed3.FR = 1;
   }
-
   if (fed3.FEDmode == FIXED_RATIO_LEFT_3
     || fed3.FEDmode == FIXED_RATIO_RIGHT_3) {
     fed3.FR = 3;
   }
-
   if (fed3.FEDmode == FIXED_RATIO_LEFT_5
     || fed3.FEDmode == FIXED_RATIO_RIGHT_5) {
     fed3.FR = 5;
   }
-
-
   if (fed3.FEDmode == FIXED_RATIO_LEFT_10
     || fed3.FEDmode == FIXED_RATIO_RIGHT_10) {
     fed3.FR = 10;
   }
 
-  if (fed3.FEDmode == VARIABLE_INTERVAL) {
-    run_VI_menu();
+  while (true) {
+    fed3.SetClock();
+    if(digitalRead(LEFT_POKE) == LOW && digitalRead(RIGHT_POKE) == LOW) {
+      break;
+    }
   }
+  fed3.display.clearDisplay();
+  fed3.display.refresh();
+  fed3.Left = false;
+  fed3.Right = false;
+
 
   if (fed3.FEDmode == VARIABLE_INTERVAL) {
     fed3.disableSleep();
+    run_VI_menu();
   }
 
   fed3.run();
@@ -361,6 +366,10 @@ void VIlog(String event) {
     display.setFont(&FreeSans9pt7b);
     display.setTextSize(1);
   }
+
+  // log date
+  RTC_PCF8523 rtc;
+
 
   // log time
   logfile.print(fed3.currentHour);
